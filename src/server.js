@@ -1,5 +1,6 @@
 import http from "http";
-import WebSocket from "ws";
+import SocketIO from "socket.io";
+/* import WebSocket from "ws"; */
 import express from "express";
 
 const app = express();
@@ -9,9 +10,27 @@ app.set("views", __dirname + "/views");
 app.use("/public", express.static(__dirname + "/public"));
 app.get("/", (req, res) => res.render("home"));
 app.get("/*", (req, res) => res.redirect("/"));
-const handleListen = () => console.log("Listening on http://localhost:3000");
+
 
 const httpServer = http.createServer(app);
+const ioServer = SocketIO(httpServer);
+
+ioServer.on("connection", (socket) => {
+    socket.on("enterRoom", (roomName, nickName, done) => {
+        socket.join(roomName);
+        socket["nickname"] = nickName;
+        done(); 
+        socket.to(roomName).emit("welcome", socket.nickname);
+    });
+    socket.on("newMessage", (message, room, done) => {
+        socket.to(room).emit("newMessage", `${socket.nickname}: ${message}`);
+        done();
+    });
+    socket.on("disconnecting", () => {
+        socket.rooms.forEach((room) => socket.to(room).emit("bye", socket.nickname));
+    });
+});
+/*
 const wsServer = new WebSocket.Server({ server: httpServer })
 
 const sockets = [];
@@ -33,5 +52,7 @@ wsServer.on("connection", (socket) => {
         }
     });
 });
+*/
 
+const handleListen = () => console.log("Listening on http://localhost:3000");
 httpServer.listen(3000, handleListen);

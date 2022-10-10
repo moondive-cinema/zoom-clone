@@ -10,11 +10,16 @@ html(lang="en")
         header
             h1 MOOM 
         main
-            form#nickname
-                input(type="text", placeholder="choose a nickname", required)
-                button Save
-            ul
-            form#message
-                input(type="text", placeholder="write a message", required)
-                button Send
+            div#welcome
+                form#enter
+                    input#room(placeholder="room name", type="text", required)
+                    input#nick(placeholder="nick name", type="text", required)
+                    button Enter Room
+            div#chatRoom
+                h3 
+                ul 
+                form#msg
+                    input(placeholder="write message", type="text", required)
+                    button Send
+        script(src="/socket.io/socket.io.js") 
         script(src="/public/js/app.js") 
