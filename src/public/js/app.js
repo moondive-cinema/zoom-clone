@@ -1,5 +1,6 @@
 const socket = io();
 
+
 const enterForm = document.getElementById("enter");
 const msgForm = document.getElementById("msg");
 const room = document.getElementById("chatRoom");
@@ -9,14 +10,18 @@ room.hidden = true;
 let roomName, nickName;
 
 
-function showRoom() {
-  welcome.hidden = true;
-  room.hidden = false;
-  const roomTitle = room.querySelector("h3");
-  roomTitle.innerText = `Room: ${roomName}`;
+function roomInfoRender(newCount) {
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${newCount})`;
 }
 
-function handleEnter(event) {
+function showRoom(newCount) {
+  welcome.hidden = true;
+  room.hidden = false;
+  roomInfoRender(newCount);
+}
+
+function handleEnterRoom(event) {
     event.preventDefault();
     const inputRoom = enterForm.querySelector("#room");
     const inputNick = enterForm.querySelector("#nick");
@@ -43,18 +48,34 @@ function handleMessageSubmit(event) {
   inputMessage.value = "";
 }
 
-enterForm.addEventListener("submit", handleEnter);
+enterForm.addEventListener("submit", handleEnterRoom);
 msgForm.addEventListener("submit", handleMessageSubmit);
 
 socket.on("newMessage", addMessage);
 
-socket.on("welcome", (user) => {
+socket.on("welcome", (user, newCount) => {
+  roomInfoRender(newCount);
   addMessage(`${user} entered into the room.`);
 });
 
-socket.on("bye", (user) => {
+socket.on("bye", (user, newCount) => {
+  roomInfoRender(newCount);
   addMessage(`${user} left the room.`);
 });
+
+socket.on ("roomChange", (rooms) => {
+  const roomList = document.getElementById("openRooms");
+  roomList.innerHTML = "";
+  if (rooms.length === 0) {
+    roomList.innerHTML = "";
+    return;
+  }
+  rooms.forEach((room) => {
+    const li = document.createElement("li");
+    li.innerText = room;
+    roomList.appendChild(li);
+  })
+})
 /*
 const messageList = document.querySelector("ul");
 const messageForm = document.querySelector("#message");
