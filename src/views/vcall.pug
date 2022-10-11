@@ -1,0 +1,21 @@
+doctype html
+html(lang="en")
+head
+    meta(charset="UTF-8")
+    meta(http-equiv="X-UA-Compatible", content="IE=edge")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Moom Video Call
+    link(rel="stylesheet" href="https://unpkg.com/mvp.css@1.12/mvp.css")
+body
+    header
+        h1 MOOM 
+        div.Move
+            button(type="button" onclick="location.href='/'") Move to Chat
+    main
+        div#myStream
+            video#myFace(autoplay, playsinline, muted, width="400", height="300")
+            button#mic Mic On
+            button#cam Cam Off
+            select#cameras
+    script(src="/socket.io/socket.io.js") 
+    script(src="/public/js/vcall.js") 
