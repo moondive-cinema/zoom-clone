@@ -12,10 +12,16 @@ body
         div.Move
             button(type="button" onclick="location.href='/'") Move to Chat
     main
-        div#myStream
-            video#myFace(autoplay, playsinline, muted, width="400", height="300")
-            button#mic Mic On
-            button#cam Cam Off
-            select#cameras
+        div#welcome
+            form#enter
+                input#room(placeholder="room name of the video call", type="text", required)
+                button Enter Room
+        div#vcall
+            div#myStream
+                video#myFace(autoplay, playsinline, muted, width="400", height="300")
+                button#mic Mic On
+                button#cam Cam Off
+                select#cameras
+                video#peerFace(autoplay,playsinline, width="400", height="300")
     script(src="/socket.io/socket.io.js") 
     script(src="/public/js/vcall.js") 

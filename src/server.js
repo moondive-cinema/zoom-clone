@@ -1,6 +1,5 @@
 import http from "http";
 import SocketIO from "socket.io";
-/* import WebSocket from "ws"; */
 import express from "express";
 
 const app = express();
@@ -10,7 +9,7 @@ app.set("views", __dirname + "/views");
 app.use("/public", express.static(__dirname + "/public"));
 app.get("/", (_, res) => res.render("home"));
 app.get("/vcall", (_, res) => res.render("vcall"));
-app.get("/*", (req, res) => res.redirect("/"));
+app.get("/*", (_, res) => res.redirect("/"));
 
 
 const httpServer = http.createServer(app);
@@ -31,9 +30,9 @@ function publicRooms() {
     return publicRooms;
   }
 
-  function countMember(roomName) {
-    return ioServer.sockets.adapter.rooms.get(roomName)?.size;
-  }
+function countMember(roomName) {
+  return ioServer.sockets.adapter.rooms.get(roomName)?.size;
+}
 
 ioServer.on("connection", (socket) => {
     ioServer.sockets.emit("roomChange", publicRooms());
@@ -55,30 +54,20 @@ ioServer.on("connection", (socket) => {
     socket.on("disconnect", () => {
         ioServer.sockets.emit("roomChange", publicRooms());
     });
-});
-/*
-const wsServer = new WebSocket.Server({ server: httpServer })
-
-const sockets = [];
-
-wsServer.on("connection", (socket) => {
-    sockets.push(socket);
-    socket["nickname"] = "Anonymous";
-    console.log("Connected to Browser ✅");
-    socket.on("close", () => console.log("Disconnected from the Browser ❌"));
-    socket.on("message", (msg) => {
-        const message = JSON.parse(msg);
-        switch (message.type) {
-            case "newMessage":
-                sockets.forEach((aSocket) => 
-                    aSocket.send(`${socket.nickname}: ${message.payload}`)
-                );
-            case "nickname":
-                socket["nickname"] = message.payload;
-        }
+    socket.on("joinVcall", (vcRoomName) => {
+      socket.join(vcRoomName);
+      socket.to(vcRoomName).emit("welcomeVcall");
+    });
+    socket.on("offer", (offer, vcRoomName) => {
+      socket.to(vcRoomName).emit("offer", offer);
+    });
+    socket.on("answer", (answer, vcRoomName) => {
+      socket.to(vcRoomName).emit("answer", answer);
+    });
+    socket.on("ice", (ice, vcRoomName) => {
+      socket.to(vcRoomName).emit("ice", ice);
     });
 });
-*/
 
 const handleListen = () => console.log("Listening on http://localhost:3000");
 httpServer.listen(3000, handleListen);
